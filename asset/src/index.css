@@ -1,0 +1,191 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    html {
+        font-family: 'Inter', system-ui, sans-serif;
+    }
+
+    body {
+        @apply bg-gray-50 text-gray-900;
+    }
+
+    * {
+        @apply scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100;
+    }
+}
+
+@layer components {
+    .message-bubble {
+        @apply max-w-xs lg:max-w-md px-4 py-3 rounded-2xl break-words shadow-sm;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .user-message {
+        @apply bg-gradient-to-r from-primary-500 to-primary-600 text-white ml-auto;
+        border-radius: 18px 18px 4px 18px;
+    }
+
+    .ai-message {
+        @apply bg-white text-gray-800 border border-gray-200 mr-auto;
+        border-radius: 18px 18px 18px 4px;
+    }
+
+    .chat-input {
+        @apply w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none transition-all duration-200;
+        @apply placeholder-gray-400 text-gray-900;
+    }
+
+    .chat-input:focus {
+        @apply shadow-lg;
+    }
+
+    .send-button {
+        @apply bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700;
+        @apply disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed;
+        @apply text-white px-6 py-3 rounded-xl transition-all duration-200 font-medium;
+        @apply shadow-md hover:shadow-lg disabled:shadow-none;
+        @apply transform hover:scale-105 disabled:transform-none;
+    }
+
+    .header-button {
+        @apply px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100;
+        @apply rounded-lg transition-all duration-200 flex items-center space-x-1;
+    }
+
+    /* Markdown 内容样式 */
+    .markdown-content {
+        @apply text-gray-800;
+    }
+
+    .markdown-content h1,
+    .markdown-content h2,
+    .markdown-content h3,
+    .markdown-content h4,
+    .markdown-content h5,
+    .markdown-content h6 {
+        @apply text-gray-900 font-semibold;
+    }
+
+    .markdown-content code {
+        @apply bg-gray-100 text-gray-800 px-1 py-0.5 rounded text-xs font-mono;
+    }
+
+    .markdown-content pre {
+        @apply bg-gray-100 text-gray-800 p-3 rounded text-xs font-mono overflow-x-auto;
+    }
+
+    .markdown-content pre code {
+        @apply bg-transparent p-0;
+    }
+
+    .markdown-content blockquote {
+        @apply border-l-4 border-gray-300 pl-4 italic text-gray-600;
+    }
+
+    .markdown-content table {
+        @apply border-collapse border border-gray-200;
+    }
+
+    .markdown-content th,
+    .markdown-content td {
+        @apply border border-gray-200 px-3 py-2 text-left;
+    }
+
+    .markdown-content th {
+        @apply bg-gray-50 font-semibold;
+    }
+
+    .markdown-content a {
+        @apply text-blue-500 hover:text-blue-700 underline;
+    }
+
+    .markdown-content ul,
+    .markdown-content ol {
+        @apply pl-4;
+    }
+
+    .markdown-content li {
+        @apply mb-1;
+    }
+}
+
+/* 自定义滚动条 */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f8fafc;
+    border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* 消息动画 */
+@keyframes messageSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.message-enter {
+    animation: messageSlideIn 0.3s ease-out;
+}
+
+/* 输入框聚焦效果 */
+.chat-input-container {
+    @apply relative;
+}
+
+.chat-input-container::before {
+    content: '';
+    @apply absolute inset-0 rounded-xl bg-gradient-to-r from-primary-500 to-primary-600 opacity-0 transition-opacity duration-200;
+    z-index: -1;
+    padding: 1px;
+}
+
+.chat-input-container:focus-within::before {
+    @apply opacity-100;
+}
+
+/* 响应式设计 */
+@media (max-width: 640px) {
+    .message-bubble {
+        @apply max-w-[280px];
+    }
+
+    .chat-input {
+        @apply text-base;
+        /* 防止iOS缩放 */
+    }
+}
+
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+    .ai-message {
+        @apply bg-gray-800 text-gray-100 border-gray-700;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: #1f2937;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #4b5563;
+    }
+}

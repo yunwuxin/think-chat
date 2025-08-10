@@ -1,0 +1,6 @@
+@echo off
+echo 正在安装依赖...
+call pnpm install
+
+echo 启动开发服务器...
+call pnpm run dev
