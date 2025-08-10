@@ -1,10 +1,19 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { MessagePairProps } from '../types';
 
 const MessagePair: React.FC<MessagePairProps> = ({ messagePair }) => {
-    const { question, answer, timestamp, isAnswering = false } = messagePair;
+    const { question, answer, reasoning, timestamp, isAnswering = false } = messagePair;
+    // 如果正在回答中，思考过程默认展开；否则默认收起
+    const [showReasoning, setShowReasoning] = useState(isAnswering);
+
+    // 监听 isAnswering 状态变化，在回答过程中保持思考过程打开
+    useEffect(() => {
+        if (isAnswering && reasoning && reasoning.trim()) {
+            setShowReasoning(true);
+        }
+    }, [isAnswering, reasoning]);
 
     const formatTime = (date: Date) => {
         return new Intl.DateTimeFormat('zh-CN', {
@@ -48,16 +57,77 @@ const MessagePair: React.FC<MessagePairProps> = ({ messagePair }) => {
 
                     {/* 回答内容 */}
                     <div className='flex flex-col'>
+                        {/* 思考过程 - 只有当reasoning存在且不为空时才显示 */}
+                        {reasoning && reasoning.trim() && (
+                            <div className='mb-2'>
+                                <button
+                                    onClick={() => {
+                                        // 如果正在回答中，不允许收起思考过程
+                                        if (!isAnswering) {
+                                            setShowReasoning(!showReasoning);
+                                        }
+                                    }}
+                                    className={`flex items-center space-x-1 text-xs transition-colors duration-200 mb-1 ${
+                                        isAnswering
+                                            ? 'text-blue-500 cursor-default'
+                                            : 'text-gray-500 hover:text-gray-700 cursor-pointer'
+                                    }`}
+                                >
+                                    <svg
+                                        className={`w-3 h-3 transition-transform duration-200 ${showReasoning ? 'rotate-90' : ''}`}
+                                        fill='none'
+                                        stroke='currentColor'
+                                        viewBox='0 0 24 24'
+                                    >
+                                        <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M9 5l7 7-7 7' />
+                                    </svg>
+                                    <span>思考过程</span>
+                                </button>
+                                {showReasoning && (
+                                    <div className='message-bubble thinking-bubble bg-gray-50 border-l-4 border-blue-200 mb-2'>
+                                        <div className='text-xs leading-relaxed text-gray-600 markdown-content'>
+                                            <ReactMarkdown
+                                                remarkPlugins={[remarkGfm]}
+                                                components={{
+                                                    p: ({ children }) => <p className='mb-1 last:mb-0'>{children}</p>,
+                                                    h1: ({ children }) =>
+                                                        <h1 className='text-sm font-bold mb-1'>{children}</h1>,
+                                                    h2: ({ children }) =>
+                                                        <h2 className='text-sm font-semibold mb-1'>{children}</h2>,
+                                                    h3: ({ children }) =>
+                                                        <h3 className='text-xs font-semibold mb-1'>{children}</h3>,
+                                                    code: ({ children, className }) => {
+                                                        const isInline = !className;
+                                                        return isInline ? (
+                                                            <code className='bg-gray-100 text-gray-800 px-1 py-0.5 rounded text-xs font-mono'>
+                                                                {children}
+                                                            </code>
+                                                        ) : (
+                                                            <code className='block bg-gray-100 text-gray-800 p-2 rounded text-xs font-mono overflow-x-auto'>
+                                                                {children}
+                                                            </code>
+                                                        );
+                                                    },
+                                                    pre: ({ children }) =>
+                                                        <pre className='mb-1 last:mb-0'>{children}</pre>,
+                                                    ul: ({ children }) =>
+                                                        <ul className='list-disc list-inside mb-1 last:mb-0 space-y-0.5'>{children}</ul>,
+                                                    ol: ({ children }) =>
+                                                        <ol className='list-decimal list-inside mb-1 last:mb-0 space-y-0.5'>{children}</ol>,
+                                                    li: ({ children }) => <li className='text-xs'>{children}</li>,
+                                                }}
+                                            >
+                                                {reasoning}
+                                            </ReactMarkdown>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
                         <div className='message-bubble ai-message'>
                             <div className='text-sm leading-relaxed markdown-content'>
-                                {isAnswering && !answer ? (
-                                    // 显示typing indicator
-                                    <div className='flex space-x-1 py-2'>
-                                        <div className='w-2 h-2 bg-gray-400 rounded-full animate-bounce'></div>
-                                        <div className='w-2 h-2 bg-gray-400 rounded-full animate-bounce' style={{ animationDelay: '0.1s' }}></div>
-                                        <div className='w-2 h-2 bg-gray-400 rounded-full animate-bounce' style={{ animationDelay: '0.2s' }}></div>
-                                    </div>
-                                ) : (
+                                {answer && (
                                     <ReactMarkdown
                                         remarkPlugins={[remarkGfm]}
                                         components={{
@@ -130,6 +200,11 @@ const MessagePair: React.FC<MessagePairProps> = ({ messagePair }) => {
                                         {answer || ''}
                                     </ReactMarkdown>
                                 )}
+                                {isAnswering && <div className='flex space-x-1 py-2'>
+                                    <div className='w-2 h-2 bg-gray-400 rounded-full animate-bounce'></div>
+                                    <div className='w-2 h-2 bg-gray-400 rounded-full animate-bounce' style={{ animationDelay: '0.1s' }}></div>
+                                    <div className='w-2 h-2 bg-gray-400 rounded-full animate-bounce' style={{ animationDelay: '0.2s' }}></div>
+                                </div>}
                             </div>
                         </div>
 

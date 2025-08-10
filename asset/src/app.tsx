@@ -63,25 +63,44 @@ function App() {
             // onChunk: 接收到数据块
             (chunk) => {
                 if (chunk.chunks) {
-                    if (chunk.chunks.content) { //这里只取了content 还可以显示其他内容比如思考信息 工具调用信息
-                        setMessagePairs(prev => {
-                            return prev.map((pair, i) => {
-                                if (i === prev.length - 1) {
-                                    let answer = pair.answer;
+                    setMessagePairs(prev => {
+                        return prev.map((pair, i) => {
+                            if (i === prev.length - 1) {
+                                let updatedPair = { ...pair };
 
+                                let answer = pair.answer;
+
+                                // 处理思考过程
+                                if (chunk.chunks.reasoning) {
+                                    updatedPair.reasoning = (updatedPair.reasoning || '') + chunk.chunks.reasoning;
+                                }
+
+                                //处理工具
+                                if (chunk.chunks.tools?.content) {
+                                    const content = chunk.chunks.tools.content;
+                                    if (typeof content === 'string') {
+                                        answer += content + '\n';
+                                    } else if (content.type === 'image') {
+                                        answer += `![](${content.image})` + '\n';
+                                    }
+                                }
+
+                                // 处理回答内容
+                                if (chunk.chunks.content) {
                                     const currentIndex = chunk.chunks.index;
                                     if (currentIndex !== index) {
                                         index = currentIndex;
                                         answer += '\n\n';
                                     }
-
                                     answer += chunk.chunks.content;
-                                    return { ...pair, answer: answer, isAnswering: false };
                                 }
-                                return pair;
-                            });
+                                updatedPair.answer = answer;
+
+                                return updatedPair;
+                            }
+                            return pair;
                         });
-                    }
+                    });
                 } else if (chunk.stats) {
                     //统计信息
                 } else if (chunk.id) {
@@ -89,7 +108,7 @@ function App() {
                     setMessagePairs(prev => {
                         return prev.map((pair, i) => {
                             if (i === prev.length - 1) {
-                                return { ...pair, id: chunk.id };
+                                return { ...pair, id: chunk.id, isAnswering: false };
                             }
                             return pair;
                         });

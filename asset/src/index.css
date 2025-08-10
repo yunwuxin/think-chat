@@ -33,6 +33,13 @@
         border-radius: 18px 18px 18px 4px;
     }
 
+    .thinking-bubble {
+        @apply max-w-xs lg:max-w-md px-3 py-2 rounded-lg break-words shadow-sm;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        border-radius: 8px;
+    }
+
     .chat-input {
         @apply w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none transition-all duration-200;
         @apply placeholder-gray-400 text-gray-900;
